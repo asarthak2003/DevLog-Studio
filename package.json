@@ -1,0 +1,110 @@
+{
+  "name": "devlogstudio",
+  "displayName": "DevLog Studio",
+  "description": "Local-only activity tracking, automatic standups, and resume-context for developers.",
+  "version": "0.0.1",
+  "publisher": "devlog-local",
+  "engines": {
+    "vscode": "^1.93.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "productivity",
+    "timeline",
+    "standup",
+    "activity",
+    "tracking"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true
+    },
+    "virtualWorkspaces": {
+      "supported": false
+    }
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "devlogstudio.showLog",
+        "title": "Show Log",
+        "category": "DevLog Studio"
+      },
+      {
+        "command": "devlogstudio.togglePause",
+        "title": "Pause/Resume Tracking",
+        "category": "DevLog Studio"
+      },
+      {
+        "command": "devlogstudio.dumpModel",
+        "title": "Dump Activity Model to Log",
+        "category": "DevLog Studio"
+      }
+    ],
+    "configuration": {
+      "title": "DevLog Studio",
+      "properties": {
+        "devlogstudio.idleTimeoutMinutes": {
+          "type": "number",
+          "default": 3,
+          "description": "Minutes of inactivity before pausing active time accumulation."
+        },
+        "devlogstudio.sessionGapMinutes": {
+          "type": "number",
+          "default": 30,
+          "description": "Minutes of inactivity before splitting work into a new session."
+        },
+        "devlogstudio.ignore": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/node_modules/**",
+            "**/.git/**",
+            "**/dist/**",
+            "**/out/**",
+            "**/build/**",
+            "**/*.lock",
+            "**/package-lock.json",
+            "**/*.min.*"
+          ],
+          "description": "Glob patterns of files and directories to ignore."
+        },
+        "devlogstudio.minTouchSeconds": {
+          "type": "number",
+          "default": 5,
+          "description": "Minimum seconds a file must be focused to count as touched if no edits were made."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "package": "node esbuild.js --production",
+    "lint": "eslint src",
+    "test": "tsx --test test/unit/*.test.ts"
+  },
+  "dependencies": {
+    "picomatch": "^4.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/picomatch": "^3.0.1",
+    "@types/vscode": "^1.93.0",
+    "@typescript-eslint/eslint-plugin": "^8.2.0",
+    "@typescript-eslint/parser": "^8.2.0",
+    "esbuild": "^0.23.1",
+    "eslint": "^8.57.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.4"
+  }
+}
