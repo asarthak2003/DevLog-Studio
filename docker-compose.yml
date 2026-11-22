@@ -1,0 +1,12 @@
+services:
+  devlog-studio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: devlogstudio-sandbox:latest
+    container_name: devlogstudio-sandbox
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./workspace:/home/coder/workspace
+    restart: unless-stopped
