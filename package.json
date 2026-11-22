@@ -3,6 +3,7 @@
   "displayName": "DevLog Studio",
   "description": "Local-only activity tracking, automatic standups, and resume-context for developers.",
   "version": "0.0.1",
+  "license": "MIT",
   "publisher": "devlog-local",
   "engines": {
     "vscode": "^1.93.0"

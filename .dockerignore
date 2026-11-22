@@ -1,0 +1,10 @@
+node_modules
+dist
+out
+.git
+.vscode
+.vscode-test
+rss
+*.vsix
+coverage
+*.log

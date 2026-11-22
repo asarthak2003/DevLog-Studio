@@ -1,0 +1,70 @@
+name: Release & Container Build
+
+on:
+  push:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  release-and-publish:
+    name: Build VSIX & Push Docker Image to GHCR
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci || npm install
+
+      - name: Run Unit Tests
+        run: npm test
+
+      - name: Build Production Bundle
+        run: npm run package
+
+      - name: Package VSIX
+        run: |
+          mkdir -p dist
+          npx --yes @vscode/vsce package --allow-missing-repository --out ./dist/devlogstudio.vsix
+
+      - name: Upload VSIX Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: devlogstudio-vsix
+          path: ./dist/devlogstudio.vsix
+
+      - name: Docker Meta (Lowercases Repository Name)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}/devlogstudio
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
