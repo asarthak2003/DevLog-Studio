@@ -1,0 +1,18 @@
+DevLog Studio Custom Software License
+
+Copyright (c) 2026 Sarthak (asarthak2003). All rights reserved.
+
+1. PERMITTED USES:
+Subject to the terms of this agreement, you are granted permission to:
+(a) Clone, download, and review the source code for personal evaluation and study.
+(b) Create branches and submit pull requests or issue suggestions solely for the purpose of proposing improvements to the official repository (https://github.com/asarthak2003/DevLog-Studio).
+
+2. RESTRICTIONS:
+You are expressly prohibited from:
+(a) Modifying, adapting, merging, or creating derivative works of this software for public release, redistribution, or independent publication.
+(b) Publishing, distributing, conveying, hosting, or mirroring the software, binaries (.vsix), or source code.
+(c) Sublicensing, renting, leasing, selling, or commercializing the software or any part thereof.
+(d) Merging any modifications into the official repository without prior written authorization from the copyright owner.
+
+3. DISCLAIMER:
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE.

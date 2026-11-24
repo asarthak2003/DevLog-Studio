@@ -3,13 +3,14 @@
   "displayName": "DevLog Studio",
   "description": "Local-only activity tracking, automatic standups, and resume-context for developers.",
   "version": "0.0.1",
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE",
   "publisher": "asarthak2003",
   "engines": {
     "vscode": "^1.93.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "Visualization"
   ],
   "keywords": [
     "productivity",
