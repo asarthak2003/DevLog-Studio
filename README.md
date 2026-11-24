@@ -8,53 +8,88 @@ DevLog Studio is a quiet, privacy-first, local-only VS Code extension that passi
 
 ---
 
-## Key Principles
+## Why DevLog Studio?
 
-- **Zero AI & Zero Network:** Completely offline. Never transmits telemetry, metrics, code, or personal data to external servers or third-party APIs.
-- **Local-Only Metadata:** Only tracks file paths, line counters, symbol name paths, and timestamps. **File contents are never stored.**
-- **Microsecond Keystroke Overhead:** Event handlers execute $O(1)$ arithmetic counters only. Heavy parsing, disk writes, and AST resolutions are debounced.
-- **Decoupled Pure Logic:** Core domain rules are isolated from the VS Code runtime, enabling 100% headless automated unit testing.
-- **Multi-Window Concurrency:** Safe file partitioning per editor window avoids concurrency lockups and file collisions.
-
----
-
-## Features (Current & Roadmap)
-
-| Phase | Capability | Status |
-|:---:|---|:---:|
-| **1** | **Foundation & Setup:** Strict TypeScript, esbuild bundling, and structured log output channel | **Complete** |
-| **2** | **Activity Capture Engine:** In-memory heartbeat active-time calculation, idle detection, and edit metrics | **Complete** |
-| **3** | **Local Storage:** Atomic write-behind persistence, schema versioning, and retention roll-up | *Next* |
-| **4** | **Timeline Sidebar:** Activity Bar tree view (`Day -> Session -> File`) with throttled live refresh | *Planned* |
-| **5** | **Standup Builder & Status Bar (MVP):** Deterministic report generator (Markdown/Slack) and live status bar | *Planned* |
-| **6** | **Symbol Tracking:** AST function and class attribution via language server document symbols | *Planned* |
-| **7** | **Git Integration:** Branch-partitioned sessions, commit tracking, and uncommitted work inspection | *Planned* |
-| **8** | **Session Resume & Notes:** One-click reopen of yesterday's files at saved cursors with private gutter notes | *Planned* |
-| **9** | **Terminal & Privacy:** Opt-in terminal command tracking with secret redaction and data inspection | *Planned* |
-| **10** | **Production Release:** Hardening, performance benchmarks, and Marketplace / Open VSX publication | *Planned* |
+- **100% Offline & Zero Telemetry:** DevLog Studio never makes network calls. No API keys, no AI models, no telemetry, and no data leaving your machine.
+- **Local-Only Metadata:** Only file paths, line counters, symbol names, and timestamps are tracked. **Your source code contents are never stored.**
+- **Zero Keystroke Lag:** Event handlers run lightweight arithmetic counters only. Heavy parsing and disk writes are debounced so typing remains butter-smooth.
+- **Multi-Window Safe:** Works seamlessly with multiple VS Code windows open on the same project without locking or file conflicts.
 
 ---
 
-## Commands
+## Quick Start
 
-Access these commands from the Command Palette (`Ctrl+Shift+P` on Windows/Linux, `Cmd+Shift+P` on macOS):
+1. **Install DevLog Studio** from the VS Code Marketplace or Open VSX.
+2. **Just start coding:** DevLog Studio automatically tracks your active focus, edit bursts, and file touches in the background.
+3. **Inspect your activity:** Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and run:
+   ```text
+   DevLog Studio: Dump Activity Model to Log
+   ```
+   The Output panel will open showing your active time, edit counts, and lines added/removed per file.
+4. **Pause anytime:** Need private time? Run `DevLog Studio: Pause/Resume Tracking` from the Command Palette to pause tracking instantly.
 
-| Command ID | Title | Description |
+---
+
+## Commands & Detailed Purposes
+
+Access all commands anytime via the Command Palette (**`Ctrl+Shift+P`** on Windows/Linux, **`Cmd+Shift+P`** on macOS) by typing `DevLog Studio`:
+
+| Command ID | Command Title | Quick Purpose |
 |---|---|---|
-| `devlogstudio.showLog` | **DevLog Studio: Show Log** | Opens the dedicated DevLog Studio structured output channel. |
-| `devlogstudio.togglePause` | **DevLog Studio: Pause/Resume Tracking** | Temporarily pauses or resumes all background activity capture. |
-| `devlogstudio.dumpModel` | **DevLog Studio: Dump Activity Model to Log** | Formats current in-memory sessions, active time, and edits into an ASCII table. |
+| `devlogstudio.dumpModel` | **DevLog Studio: Dump Activity Model to Log** | Generates an instant ASCII report of active sessions, time per file, and edit metrics. |
+| `devlogstudio.togglePause` | **DevLog Studio: Pause/Resume Tracking** | One-click toggle to temporarily pause or resume all activity monitoring. |
+| `devlogstudio.showLog` | **DevLog Studio: Show Log** | Opens and reveals the dedicated DevLog Studio log channel in the Output panel. |
+
+---
+
+### Deep Dive: Command Purposes & Use Cases
+
+#### 1. `DevLog Studio: Dump Activity Model to Log`
+* **Primary Purpose:** Instant live visibility into your current coding session.
+* **When to Use:**
+  * Before heading to lunch or ending your workday to see exactly what you accomplished.
+  * During daily standups to recall the exact files, lines, and durations you worked on.
+  * To verify that your project ignore globs are working as expected.
+* **What it Does:** Computes in-memory session statistics and renders a clean, human-readable ASCII summary table directly in the **Output** channel:
+  ```text
+  ========================================================================
+  DevLog Studio Activity Dump | Date: 2026-11-24 | Paused: false
+  Sessions (1):
+    - Session a1b2c3: 42m active / 1h 10m span (Branch: main)
+  ------------------------------------------------------------------------
+  Tracked Files:
+  File                                 | Active     | Edits   | +Lines  | -Lines 
+  ------------------------------------------------------------------------
+  src/core/heartbeat.ts                | 24m        | 18      | 85      | 12     
+  src/tracking/editorTracker.ts        | 18m        | 12      | 42      | 6      
+  ========================================================================
+  Total Active: 42m | Total Edits: 30
+  ========================================================================
+  ```
+
+#### 2. `DevLog Studio: Pause/Resume Tracking`
+* **Primary Purpose:** Privacy on-demand and distraction filtering.
+* **When to Use:**
+  * When opening confidential files, credentials, or personal side-notes that you don't want recorded in your activity history.
+  * During prolonged meetings or pair-programming sessions where you want tracking frozen.
+* **What it Does:** Immediately flips the internal tracking state. While paused, all keystrokes, editor switches, and active-time counters are ignored. Running the command again displays a notification and resumes tracking seamlessly.
+
+#### 3. `DevLog Studio: Show Log`
+* **Primary Purpose:** Quick access to the extension's diagnostic logs and activity history.
+* **When to Use:**
+  * When you want to review historical logs, check extension startup status, or inspect output without digging through the VS Code Output channel dropdown.
+* **What it Does:** Opens the bottom **Output** panel and brings the `DevLog Studio` log stream into immediate focus.
 
 ---
 
 ## Extension Settings
 
-Customize DevLog Studio via **Settings** (`Ctrl+,`) under `DevLog Studio`:
+Customize DevLog Studio under **Settings** (`Ctrl+,` or `Cmd+,`) by searching for `DevLog Studio`:
 
 | Setting | Type | Default | Description |
 |---|:---:|:---:|---|
-| `devlogstudio.idleTimeoutMinutes` | `number` | `3` | Minutes of inactivity before active-time accumulation pauses. |
-| `devlogstudio.sessionGapMinutes` | `number` | `30` | Minutes of inactivity before work is automatically split into a new session. |
+| `devlogstudio.idleTimeoutMinutes` | `number` | `3` | Inactivity threshold before active-time accumulation pauses. |
+| `devlogstudio.sessionGapMinutes` | `number` | `30` | Inactivity threshold before work is split into a new session. |
 | `devlogstudio.ignore` | `array` | `[...defaults]` | Glob patterns for files and directories that should never be tracked. |
 | `devlogstudio.minTouchSeconds` | `number` | `5` | Minimum seconds a file must remain focused to count as touched if no edits were made. |
 
@@ -63,53 +98,40 @@ Customize DevLog Studio via **Settings** (`Ctrl+,`) under `DevLog Studio`:
 
 ---
 
-## Privacy Guarantee
+## Feature Roadmap
 
-DevLog Studio is built from the ground up to respect developer privacy and enterprise compliance:
-
-1. **No External Network Requests:** The extension contains zero HTTP/HTTPS network calls, analytics, or background telemetry.
-2. **No Code Scraping:** Only metadata (relative file paths, line counter deltas, timestamps) is captured. Your proprietary source code is never read or stored.
-3. **Opt-In Everything Sensitive:** Terminal commands, debug sessions, and future integrations default to disabled or strictly redacted modes.
+| Phase | Capability | Status |
+|:---:|---|:---:|
+| **1** | **Foundation & Setup:** High-performance esbuild bundle and structured logging | **Available** |
+| **2** | **Activity Capture Engine:** In-memory heartbeat active-time calculation, idle detection, and edit metrics | **Available** |
+| **3** | **Local Storage:** Atomic write-behind disk persistence, schema versioning, and retention roll-ups | *Coming Soon* |
+| **4** | **Timeline Sidebar:** Dedicated Activity Bar tree view (`Day -> Session -> File`) with live updates | *Coming Soon* |
+| **5** | **Standup Export & Status Bar (MVP):** One-click deterministic standup summary generator (Markdown/Slack) | *Coming Soon* |
+| **6** | **Symbol-Level Tracking:** Function and class attribution ("you edited `TokenStore.refresh`") | *Coming Soon* |
+| **7** | **Git Integration:** Branch-partitioned sessions, commit events, and uncommitted changes list | *Coming Soon* |
+| **8** | **Resume Context & Notes:** Reopen yesterday's files at saved cursor lines with private gutter notes | *Coming Soon* |
+| **9** | **Terminal & Tasks:** Opt-in terminal command tracking with automatic secret redaction | *Coming Soon* |
 
 ---
 
-## Development & Local Testing
+## Privacy & Security Guarantees
 
-### Prerequisites
-- Node.js LTS (v20+ or v22+)
-- npm v10+
-- VS Code ^1.93.0
+DevLog Studio is built from the ground up for strict privacy and enterprise compliance:
 
-### Build & Run
-```bash
-# 1. Install dependencies
-npm install
+1. **Zero Network Connections:** The extension has no network client, no analytics SDKs, and no external endpoints.
+2. **No Proprietary Code Access:** DevLog Studio never reads or caches the contents of your files—only file paths, line counts, and timestamps.
+3. **Data Sovereignty:** All activity data stays stored solely on your local disk under VS Code's private global storage directory.
 
-# 2. Run unit tests
-npm test
+---
 
-# 3. Build production bundle with esbuild
-npm run compile
+## Feedback & Issues
 
-# 4. Check linting rules
-npm run lint
-```
-
-### Debugging with Extension Host
-1. Open the project in VS Code / Antigravity IDE.
-2. Press **`F5`** (or select `Run` -> `Start Debugging`).
-3. An **`[Extension Development Host]`** window will launch with DevLog Studio loaded.
-4. Open any project in that window, edit files, and run `DevLog Studio: Dump Activity Model to Log` to inspect live capture.
-
-### Docker Interactive Sandbox
-To test DevLog Studio inside a browser-based web VS Code instance (`code-server`):
-```bash
-docker compose up --build
-```
-Then navigate to `http://localhost:8080` in your web browser.
+Have an idea, request, or issue? Please open an issue on our [GitHub Issue Tracker](https://github.com/asarthak2003/DevLog-Studio/issues).
 
 ---
 
 ## License
 
-MIT © [DevLog Studio Contributors](LICENSE)
+Copyright (c) 2026 Sarthak (asarthak2003). All rights reserved.
+
+This software is source-available for evaluation and contributions via the official repository. Redistribution, modification for independent release, sublicensing, and commercial sale are strictly prohibited. See [LICENSE](LICENSE) for full details.
