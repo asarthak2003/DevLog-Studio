@@ -4,6 +4,7 @@ export interface TrackerConfig {
   idleTimeoutMinutes: number;
   sessionGapMinutes: number;
   minTouchSeconds: number;
+  retentionDays: number;
   ignorePatterns: string[];
 }
 
@@ -68,4 +69,27 @@ export interface HeartbeatResult {
   creditedMs: number;
   isIdleGap: boolean;
   isSessionSplit: boolean;
+}
+
+export interface WorkspaceInfo {
+  id: string;
+  name: string;
+  folderPath: string;
+  lastSeen: number;
+}
+
+export interface WorkspaceIndex {
+  workspaces: Record<string, WorkspaceInfo>;
+}
+
+export interface MonthlySummary {
+  schemaVersion: number;
+  month: string; // YYYY-MM
+  workspaceId: string;
+  totalActiveMs: number;
+  totalEdits: number;
+  linesAdded: number;
+  linesRemoved: number;
+  files: Record<string, { activeMs: number; editCount: number }>;
+  commits?: string[];
 }

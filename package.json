@@ -47,11 +47,36 @@
         "command": "devlogstudio.dumpModel",
         "title": "Dump Activity Model to Log",
         "category": "DevLog Studio"
+      },
+      {
+        "command": "devlogstudio.openDataFolder",
+        "title": "Open Data Folder",
+        "category": "DevLog Studio"
+      },
+      {
+        "command": "devlogstudio.exportData",
+        "title": "Export Data",
+        "category": "DevLog Studio"
+      },
+      {
+        "command": "devlogstudio.clearData",
+        "title": "Clear Workspace Data",
+        "category": "DevLog Studio"
+      },
+      {
+        "command": "devlogstudio.flushNow",
+        "title": "Flush Data to Disk Now",
+        "category": "DevLog Studio"
       }
     ],
     "configuration": {
       "title": "DevLog Studio",
       "properties": {
+        "devlogstudio.retentionDays": {
+          "type": "number",
+          "default": 90,
+          "description": "Days of raw daily tracking data to retain before rolling up into monthly summaries."
+        },
         "devlogstudio.idleTimeoutMinutes": {
           "type": "number",
           "default": 3,

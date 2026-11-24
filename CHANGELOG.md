@@ -7,7 +7,6 @@ Record of changes, enhancements, and milestones across versions of DevLog Studio
 ## [Unreleased]
 
 ### Planned
-- **Phase 3:** Persistent local storage engine, atomic `.tmp` write flushing, and retention manager.
 - **Phase 4:** Dedicated Activity Bar Timeline tree view (`Day -> Session -> File`).
 - **Phase 5:** One-click standup summary generator (Markdown, Plain Text, Slack) and status bar time tracker (v0.1 MVP).
 - **Phase 6:** AST symbol-level attribution ("edited `TokenStore.refresh`" via document symbol providers).
@@ -17,9 +16,18 @@ Record of changes, enhancements, and milestones across versions of DevLog Studio
 
 ---
 
-## [0.0.1] - 2026-11-22
+## [0.0.1] - 2026-11-24
 
 ### Added
+- **Local Storage & Data Model (Phase 3):**
+  - **Global Storage Architecture:** Multi-window safe data persistence partitioned under `<globalStorage>/data/<workspaceId>/YYYY-MM-DD.<sessionId>.json`.
+  - **Atomic Safe Writes:** Implemented write-to-temp and atomic overwrite via `workspace.fs.rename` preventing torn JSON on unexpected crashes.
+  - **Reconciliation Engine:** Pure function `mergeDayLogs()` uniting independent window logs, calculating exact earliest touches, latest touches, cursors, and cumulative active times.
+  - **Write-Behind Flushing:** Automatic debounced background flush (every 30s when dirty), on window blur, on midnight rollover, and on extension shutdown (`deactivate`).
+  - **Schema Versioning & Migrations:** Framework in `storage/schema.ts` and `storage/migrate.ts` ensuring backward compatibility.
+  - **Data Retention & Monthly Roll-up:** Background roll-up task compressing daily logs older than `retentionDays` into monthly summaries.
+  - **Quarantine Resilience:** Automatic isolation of corrupt files to `.corrupt-<timestamp>` preventing startup crashes.
+  - **Data Control Commands:** `devlogstudio.openDataFolder`, `devlogstudio.exportData`, `devlogstudio.clearData`, and `devlogstudio.flushNow`.
 - **Project Foundation (Phase 1):**
   - Scaffolded extension targeting VS Code `^1.93.0` with strict TypeScript and esbuild bundler.
   - Composition root in `src/extension.ts` ensuring clean lifecycle disposal via `context.subscriptions`.

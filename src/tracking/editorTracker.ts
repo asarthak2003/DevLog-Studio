@@ -8,11 +8,18 @@ export class EditorTracker implements vscode.Disposable {
   private model: ActivityModel;
   private heartbeat: HeartbeatTracker;
   private ignoreFilter: IgnoreFilter;
+  private onFlushRequest?: () => void;
 
-  constructor(model: ActivityModel, heartbeat: HeartbeatTracker, ignoreFilter: IgnoreFilter) {
+  constructor(
+    model: ActivityModel,
+    heartbeat: HeartbeatTracker,
+    ignoreFilter: IgnoreFilter,
+    onFlushRequest?: () => void
+  ) {
     this.model = model;
     this.heartbeat = heartbeat;
     this.ignoreFilter = ignoreFilter;
+    this.onFlushRequest = onFlushRequest;
 
     this.registerListeners();
   }
@@ -36,6 +43,11 @@ export class EditorTracker implements vscode.Disposable {
     }
 
     const now = Date.now();
+    const rollover = this.model.checkMidnightRollover(now);
+    if (rollover.rolledOver && this.onFlushRequest) {
+      this.onFlushRequest();
+    }
+
     const result = this.heartbeat.heartbeat(file, now);
 
     if (result.file && result.creditedMs > 0) {
@@ -108,6 +120,9 @@ export class EditorTracker implements vscode.Disposable {
           const blurResult = this.heartbeat.onWindowBlur(now);
           if (blurResult.file && blurResult.creditedMs > 0) {
             this.model.addActiveTime(blurResult.file, blurResult.creditedMs, now);
+          }
+          if (this.onFlushRequest) {
+            this.onFlushRequest();
           }
         }
       })

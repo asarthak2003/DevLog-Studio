@@ -5,6 +5,7 @@ export class ActivityModel {
   private sessions: Session[] = [];
   private currentSession: Session | null = null;
   private isPaused = false;
+  private dirty = false;
   private workspaceId: string;
   private dateString: string;
 
@@ -23,6 +24,22 @@ export class ActivityModel {
     return this.isPaused;
   }
 
+  public isDirty(): boolean {
+    return this.dirty;
+  }
+
+  public markClean(): void {
+    this.dirty = false;
+  }
+
+  public getDate(): string {
+    return this.dateString;
+  }
+
+  public getWorkspaceId(): string {
+    return this.workspaceId;
+  }
+
   public startNewSession(now: number, branch?: string, repo?: string): Session {
     if (this.currentSession) {
       this.currentSession.end = now;
@@ -39,6 +56,7 @@ export class ActivityModel {
 
     this.sessions.push(session);
     this.currentSession = session;
+    this.dirty = true;
     return session;
   }
 
@@ -58,6 +76,7 @@ export class ActivityModel {
         lastTouch: now,
       };
       this.files.set(file, stats);
+      this.dirty = true;
     }
     return stats;
   }
@@ -69,6 +88,7 @@ export class ActivityModel {
     if (this.currentSession) {
       this.currentSession.end = now;
     }
+    this.dirty = true;
   }
 
   public addActiveTime(file: string, ms: number, now: number): void {
@@ -81,6 +101,7 @@ export class ActivityModel {
       this.currentSession.activeMs += ms;
       this.currentSession.end = now;
     }
+    this.dirty = true;
   }
 
   public recordEdit(file: string, added: number, removed: number, now: number): void {
@@ -94,6 +115,7 @@ export class ActivityModel {
     if (this.currentSession) {
       this.currentSession.end = now;
     }
+    this.dirty = true;
   }
 
   public recordSave(file: string, now: number): void {
@@ -103,6 +125,7 @@ export class ActivityModel {
     if (this.currentSession) {
       this.currentSession.end = now;
     }
+    this.dirty = true;
   }
 
   public recordCursor(file: string, line: number, character: number, now: number): void {
@@ -110,6 +133,7 @@ export class ActivityModel {
     const stats = this.getOrCreateFileStats(file, now);
     stats.lastCursor = { line, character };
     stats.lastTouch = now;
+    this.dirty = true;
   }
 
   public recordVisibleRange(file: string, startLine: number, endLine: number, now: number): void {
@@ -117,6 +141,7 @@ export class ActivityModel {
     const stats = this.getOrCreateFileStats(file, now);
     stats.lastVisibleRange = { startLine, endLine };
     stats.lastTouch = now;
+    this.dirty = true;
   }
 
   public renameFile(oldPath: string, newPath: string): void {
@@ -124,11 +149,14 @@ export class ActivityModel {
     if (existing) {
       this.files.delete(oldPath);
       this.files.set(newPath, existing);
+      this.dirty = true;
     }
   }
 
   public deleteFile(file: string): void {
-    this.files.delete(file);
+    if (this.files.delete(file)) {
+      this.dirty = true;
+    }
   }
 
   public getFileStats(file: string): FileStats | undefined {
@@ -141,6 +169,41 @@ export class ActivityModel {
 
   public getSessions(): Session[] {
     return [...this.sessions];
+  }
+
+  /**
+   * Restores in-memory model from a persistent DayLog record.
+   */
+  public restoreFromSnapshot(log: DayLog): void {
+    this.workspaceId = log.workspaceId;
+    this.dateString = log.date;
+    this.files.clear();
+    for (const [path, stats] of Object.entries(log.files || {})) {
+      this.files.set(path, { ...stats });
+    }
+    this.sessions = log.sessions ? log.sessions.map((s) => ({ ...s })) : [];
+    this.currentSession = this.sessions.length > 0 ? this.sessions[this.sessions.length - 1] : null;
+    this.dirty = false;
+  }
+
+  /**
+   * Midnight rollover: checks if current timestamp has crossed into a new date.
+   * If crossed, returns rollover info so old day can be flushed and a fresh day started.
+   */
+  public checkMidnightRollover(now = Date.now()): { rolledOver: boolean; oldDate: string; newDate: string } {
+    const currentDate = new Date(now).toISOString().slice(0, 10);
+    if (currentDate !== this.dateString) {
+      const oldDate = this.dateString;
+      this.dateString = currentDate;
+      // End current session at midnight and start fresh in the new day
+      this.files.clear();
+      this.sessions = [];
+      this.currentSession = null;
+      this.startNewSession(now);
+      this.dirty = true;
+      return { rolledOver: true, oldDate, newDate: currentDate };
+    }
+    return { rolledOver: false, oldDate: this.dateString, newDate: this.dateString };
   }
 
   public getSnapshot(): DayLog {
@@ -184,7 +247,6 @@ export class ActivityModel {
     let totalEdits = 0;
 
     for (const [file, stats] of this.files.entries()) {
-      // Filter out files that were opened under minTouchSeconds with 0 edits
       if (stats.activeMs < minTouchMs && stats.editCount === 0) {
         continue;
       }

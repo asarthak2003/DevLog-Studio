@@ -39,6 +39,10 @@ Access all commands anytime via the Command Palette (**`Ctrl+Shift+P`** on Windo
 | `devlogstudio.dumpModel` | **DevLog Studio: Dump Activity Model to Log** | Generates an instant ASCII report of active sessions, time per file, and edit metrics. |
 | `devlogstudio.togglePause` | **DevLog Studio: Pause/Resume Tracking** | One-click toggle to temporarily pause or resume all activity monitoring. |
 | `devlogstudio.showLog` | **DevLog Studio: Show Log** | Opens and reveals the dedicated DevLog Studio log channel in the Output panel. |
+| `devlogstudio.openDataFolder` | **DevLog Studio: Open Data Folder** | Reveals the local storage directory in your OS file explorer. |
+| `devlogstudio.exportData` | **DevLog Studio: Export Data** | Merges and exports all recorded workspace history into a standalone JSON file. |
+| `devlogstudio.clearData` | **DevLog Studio: Clear Workspace Data** | Safely deletes all recorded tracking and summary files for the current workspace. |
+| `devlogstudio.flushNow` | **DevLog Studio: Flush Data to Disk Now** | Forces an immediate write of pending in-memory activity logs to local storage. |
 
 ---
 
@@ -90,6 +94,7 @@ Customize DevLog Studio under **Settings** (`Ctrl+,` or `Cmd+,`) by searching fo
 |---|:---:|:---:|---|
 | `devlogstudio.idleTimeoutMinutes` | `number` | `3` | Inactivity threshold before active-time accumulation pauses. |
 | `devlogstudio.sessionGapMinutes` | `number` | `30` | Inactivity threshold before work is split into a new session. |
+| `devlogstudio.retentionDays` | `number` | `90` | Days of raw daily logs to retain before rolling up into monthly summaries. |
 | `devlogstudio.ignore` | `array` | `[...defaults]` | Glob patterns for files and directories that should never be tracked. |
 | `devlogstudio.minTouchSeconds` | `number` | `5` | Minimum seconds a file must remain focused to count as touched if no edits were made. |
 
@@ -104,7 +109,7 @@ Customize DevLog Studio under **Settings** (`Ctrl+,` or `Cmd+,`) by searching fo
 |:---:|---|:---:|
 | **1** | **Foundation & Setup:** High-performance esbuild bundle and structured logging | **Available** |
 | **2** | **Activity Capture Engine:** In-memory heartbeat active-time calculation, idle detection, and edit metrics | **Available** |
-| **3** | **Local Storage:** Atomic write-behind disk persistence, schema versioning, and retention roll-ups | *Coming Soon* |
+| **3** | **Local Storage:** Atomic write-behind disk persistence, schema versioning, and retention roll-ups | **Available** |
 | **4** | **Timeline Sidebar:** Dedicated Activity Bar tree view (`Day -> Session -> File`) with live updates | *Coming Soon* |
 | **5** | **Standup Export & Status Bar (MVP):** One-click deterministic standup summary generator (Markdown/Slack) | *Coming Soon* |
 | **6** | **Symbol-Level Tracking:** Function and class attribution ("you edited `TokenStore.refresh`") | *Coming Soon* |
